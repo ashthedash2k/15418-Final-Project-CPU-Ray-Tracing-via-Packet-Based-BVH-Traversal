@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Packet-Based Path Tracer Project</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; line-height: 1.6; }
+        h1, h2 { color: #2C3E50; }
+        pre { background: #F5F5F5; padding: 10px; border-radius: 5px; overflow-x: auto; }
+        a { color: #2980B9; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <h1>Packet-Based Path Tracer Project</h1>
+    <h3>Ashley Czumak (aczumak) and Kenechukwu Echezona (kechezon)</h3>
+    
+    <h2>Summary</h2>
+    <p>We plan to implement a packet based path tracer in Scotty3D, parallelizing the work with OpenMP for coarse grained threading across multiple CPU cores and ISPC for fin grained SIMD acceleration within ray packets. Our implementation will traverse a Bounding Volume Hierarchy (BVH) tree, reducing redundant intersection tests and improving cache coherence. We plan to demonstrate rendering of scenes with multiple bounces and soft shadows, comparing performance between single threaded, OpenMP only, and OpenMP and ISPC versions on a multi-core CPU machine.</p>
+
+    <h2>Background</h2>
+    <p>Our project parallelizes path tracing in Scotty3D, a renderer that computes pixel colors by simulating light transport through a scene. The main data structure includes a Bounding Volume Hierarchy (BVH), which organizes scene geometry hierarchically using bounding boxes, and ray packets, which store groups of rays for coherent traversal. The primary operations on these structures are ray BVH intersection tests and ray triangle intersection tests, performed through the tree until leaf nodes are reached. The computationally expensive portion is the traversal of the BVH and intersection testing for millions of rays per frame, which is highly amenable to parallelization because each ray (or packet of rays) can be traced independently. The workload is broken down into packets of pixels, with dependencies only occurring when updating the final image buffer, which can be managed safely using atomic operations. This shows coarse grained data parallelism across packets for multi core execution via OpenMP, and fine grained SIMD parallelism within packets using ISPC. Ray packets improve memory locality because coherent rays traverse similar nodes in the BVH, which cache misses. Overall, the algorithm has high parallelism, is largely data parallel, 
+        and is ideal for SIMD execution because of the uniform operations performed across rays in a packet.</p>
+    
+    
+    <h2>The Challenge</h2>
+    <p>The challenge of this optimization problem is balancing parallelism, memory efficiency, and algorithmic correctness. Traversing the BVH with ray packets can cause branch divergence when rays in a packet follow different paths, this effectively reduces SIMD efficiency. Large scenes also affect the CPU cache, and maintaining memory locality during traversal is very important for efficiency. Additionally, packets require varying amounts of work due to differences in ray bounces and geometry complexity, making load balancing across threads important. Ensuring thread-safe writes to the image buffer and selecting an optimal packet size to maximize SIMD utilization while preserving ray coherence complicates the problem. Overall, the difficulty is in maximizing parallel throughput, minimizing divergence, and maintaining the correct rendering.</p>
+    
+    <h2>Resources</h2>
+    <pre>
+        Scotty 3D is graphics software package that includes components for software rastization, interactive mesh editing, realistic path tracing, and dynamic animation. We will use Kenechukwu's Scotty3D A3 raytracing support packet tracing.\\\\
+
+OpenMP would be used to parallelize the path tracing workload across multiple CPU cores by distributing packets of pixels or blocks of the image among threads. Each thread can independently trace its assigned rays through the scene and update the corresponding pixels in the output buffer. Dynamic scheduling could be applied to balance workload when some regions require more ray bounces, this would make all cores stay busy and the rendering would be efficient.\\\\
+
+ISPC would be used to accelerate the computation within each ray packet by leveraging SIMD. Instead of processing rays one at a time, a packet of rays is processed simultaneously, performing BVH intersection tests and shading calculations in parallel using the CPU’s SIMD units. This reduces branch divergence, allowing each core to trace multiple coherent rays at once with high efficiency.\\\\
+
+Other resources include Enrique who is a TA for CMU's computer graphics class. He is very familiar with computer graphics and the Scotty3D code base and we have used him to discuss what is and isn't possible in the given time that we have. 
+    </pre>
+
+    <h2>Platform Choice</h2>
+    <p>Development and testing for this project will be conducted on the Gates computers because they support AVX SIMD instructions. These machines are sufficient for implementing and debugging the packet-based path tracer, testing correctness, and running small and medium sized scenes. Gates computers will also be beneficial for running large tests and evaluating the maximum achievable speedup with OpenMP and ISPC parallelization. While these machines are not required for our project, they will allow us to measure performance scaling and verify that the optimizations perform as expected under tests that have high workloads.</p>
+
+    <h2>Schedule</h2>
+    <pre>
+        1. Week 1
+• Familiarize with Scotty3D PathTracer module and BVH implemen-
+tation.
+• Test that code compiles and renders simple scenes correctly.
+• Plan ray packet data structures and how they fit into existing Path-
+Tracer code.
+• Implement basic ray packet structure.
+• Refactor tracing loop to process packets instead of single rays.
+• Test correctness.
+• Profile current implementation to identify BVH traversal bottlenecks.
+• Experiment with small packet sizes and verify memory locality im-
+provements.
+• Begin implementing OpenMP parallelization across packets.
+2. Week 2
+• Complete OpenMP integration and test multi-threaded packet trac-
+ing.
+3
+• Compare single-threaded vs. OpenMP performance.
+• Debug thread safety issues in image buffer updates.
+• Introduce ISPC for fine-grained SIMD acceleration within each packet.
+• Vectorize BVH intersection and shading routines for packets.
+• Test correctness and compare to scalar implementation.
+• Tune packet size for optimal SIMD performance (balance coherence
+vs. vector width).
+• Optimize memory layout for cache efficiency (SoA vs. AoS).
+• Profile OpenMP+ISPC implementation.
+3. Week 3 (Intermediate Milestone Deadline)
+• Prepare an intermediate report / demo.
+• Show:
+– Basic packet tracing working
+– OpenMP speedup
+– ISPC vectorization in progress
+• Verify performance improvements on benchmark scenes.
+• Address performance bottlenecks identified in milestone demo.
+• Implement any remaining shading or bounce logic.
+• Ensure correctness for complex scenes.
+• Final profiling and optimization.
+• Generate benchmark comparisons: single-threaded, OpenMP, OpenMP+ISPC.
+• Prepare visual demo scenes for final deliverable.
+4. Final Days
+• Polish code and documentation.
+• Focus on finishing final deliverable.
+• Test on target machine to verify reproducibility and performance.
+• Final run of packet-based path tracer.
+• Showcase the real-time or accelerated rendering of complex scenes.
+• Highlight speedup metrics (OpenMP vs. OpenMP+ISPC)
+    </pre>
+
+    
+</body>
+</html>
