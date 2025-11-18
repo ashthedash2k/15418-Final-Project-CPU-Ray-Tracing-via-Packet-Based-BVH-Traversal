@@ -15,7 +15,7 @@
     <h3>Ashley Czumak (aczumak) and Kenechukwu Echezona (kechezon)</h3>
     
     <h2>Summary</h2>
-    <p>We plan to implement a packet based path tracer in Scotty3D, parallelizing the work with OpenMP for coarse grained threading across multiple CPU cores and ISPC for fin grained SIMD acceleration within ray packets. Our implementation will traverse a Bounding Volume Hierarchy (BVH) tree, reducing redundant intersection tests and improving cache coherence. We plan to demonstrate rendering of scenes with multiple bounces and soft shadows, comparing performance between single threaded, OpenMP only, and OpenMP and ISPC versions on a multi-core CPU machine.</p>
+    <p>We plan to implement a packet based path tracer in Scotty3D, parallelizing the work with OpenMP for coarse grained threading across multiple CPU cores and ISPC for fine grained SIMD acceleration within ray packets. Our implementation will traverse a Bounding Volume Hierarchy (BVH) tree, reducing redundant intersection tests and improving cache coherence. We plan to demonstrate rendering of scenes with multiple light ray bounces and soft shadows, comparing performance between single threaded, OpenMP only, and OpenMP and ISPC versions on a multi-core CPU machine.</p>
 
     <h2>Background</h2>
     <p>Our project parallelizes path tracing in Scotty3D, a renderer that computes pixel colors by simulating light transport through a scene. The main data structure includes a Bounding Volume Hierarchy (BVH), which organizes scene geometry hierarchically using bounding boxes, and ray packets, which store groups of rays for coherent traversal. The primary operations on these structures are ray BVH intersection tests and ray triangle intersection tests, performed through the tree until leaf nodes are reached. The computationally expensive portion is the traversal of the BVH and intersection testing for millions of rays per frame, which is highly amenable to parallelization because each ray (or packet of rays) can be traced independently. The workload is broken down into packets of pixels, with dependencies only occurring when updating the final image buffer, which can be managed safely using atomic operations. This shows coarse grained data parallelism across packets for multi core execution via OpenMP, and fine grained SIMD parallelism within packets using ISPC. Ray packets improve memory locality because coherent rays traverse similar nodes in the BVH, which cache misses. Overall, the algorithm has high parallelism, is largely data parallel, 
@@ -27,13 +27,13 @@
     
     <h2>Resources</h2>
     <pre>
-        Scotty 3D is graphics software package that includes components for software rastization, interactive mesh editing, realistic path tracing, and dynamic animation. We will use Kenechukwu's Scotty3D A3 raytracing support packet tracing.\\\\
+        Scotty 3D is graphics software package that includes components for software rastization, interactive mesh editing, realistic path tracing, and dynamic animation. We will use Kenechukwu's Scotty3D A3 (from 15-362) raytracing as a base for packet tracing .\\\\
 
 OpenMP would be used to parallelize the path tracing workload across multiple CPU cores by distributing packets of pixels or blocks of the image among threads. Each thread can independently trace its assigned rays through the scene and update the corresponding pixels in the output buffer. Dynamic scheduling could be applied to balance workload when some regions require more ray bounces, this would make all cores stay busy and the rendering would be efficient.\\\\
 
 ISPC would be used to accelerate the computation within each ray packet by leveraging SIMD. Instead of processing rays one at a time, a packet of rays is processed simultaneously, performing BVH intersection tests and shading calculations in parallel using the CPU’s SIMD units. This reduces branch divergence, allowing each core to trace multiple coherent rays at once with high efficiency.\\\\
 
-Other resources include Enrique who is a TA for CMU's computer graphics class. He is very familiar with computer graphics and the Scotty3D code base and we have used him to discuss what is and isn't possible in the given time that we have. 
+Other resources include Henrique who is a TA for CMU's Visual Computing Systems class. He is very familiar with computer graphics and the Scotty3D code base and we have used him to discuss what is and isn't possible in the given time that we have. 
     </pre>
 
     <h2>Platform Choice</h2>
