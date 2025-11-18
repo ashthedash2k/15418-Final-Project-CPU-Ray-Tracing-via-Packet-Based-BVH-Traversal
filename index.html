@@ -121,25 +121,24 @@ vs. vector width).
 - Wide packet tracing, NUMA-aware scheduling.
 - Target: 15–20×+ speedup and polished visual demo.
 
-Team Split 
 Team Division (Both Members Collaborate on Every Stage)
 
 - Stage 1: Baseline Implementation
-  • Work together on building the serial BVH traversal and ray–box/triangle intersection.
+  • Work together on building the serial BVH traversal and ray box/triangle intersection.
   • Jointly design ray packet data structures and test correctness.
 
 - Stage 2: Initial Parallelism
-  • Together integrate OpenMP parallel-for and test multicore scaling.
+  • Together integrate OpenMP parallel for and test multicore scaling.
   • Collaborate on writing basic ISPC kernels and verifying SIMD correctness.
 
 - Stage 3: Full Parallel Optimization
-  • Jointly profile the code (VTune, perf) and identify hotspots.
-  • Co-optimize data layout (AoS → SoA), memory access, cache locality, and scheduling.
+  • Jointly profile the code  and identify hotspots.
+  • Co optimize data layout, memory access, cache locality, and scheduling.
   • Tune ISPC vector width, OpenMP scheduling, and BVH traversal together.
 
 - Stage 4: Advanced Optimization
   • Implement ray sorting, packet coherence improvements, and divergence reduction as a team.
-  • Add prefetching, alignment, and micro-architecture optimizations collaboratively.
+  • Add prefetching, alignment, and micro architecture optimizations collaboratively.
 
 - Stage 5: Stretch / Competition Goal
   • Jointly build hybrid ISPC + OpenMP pipelines or task-based parallelism.
@@ -150,10 +149,8 @@ Shared Non-Technical Responsibilities
 - Both contribute equally to the final report and slides.
 - Both participate in testing, debugging, benchmarking, and visualization.
 
-
 </pre>
 
     
 </body>
 </html>
-
